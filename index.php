@@ -1,6 +1,7 @@
 <?php
     include_once '.\config\config.php';
-    if(isset($_SESSION['userlogged']))
+    if (!(isset($_SESSION['userlogged'])))
+        header('Location: login.php');
 ?>
 <!DOCTYPE html>
 <html lang="br">
