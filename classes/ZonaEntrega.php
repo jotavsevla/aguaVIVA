@@ -1,14 +1,18 @@
 <?php
-
-namespace classes;
-
 class ZonaEntrega {
-    public $id;
-    public $descricao;
+    private $conn;
 
-    // Construtor
-    public function __construct($id = null, $descricao = '') {
-        $this->id = $id;
-        $this->descricao = $descricao;
+    public function __construct($conn) {
+        $this->conn = $conn;
+    }
+
+    public function listar() {
+        $stmt = $this->conn->query("
+            SELECT *
+            FROM zonas_entrega
+            WHERE ativo = 1
+            ORDER BY nome
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
