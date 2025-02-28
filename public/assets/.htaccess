@@ -1,0 +1,5 @@
+# public/assets/.htaccess
+<IfModule mod_rewrite.c>
+    # Desativar o rewrite engine para este diretório
+    RewriteEngine Off
+</IfModule>
