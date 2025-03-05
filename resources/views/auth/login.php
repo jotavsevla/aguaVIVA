@@ -11,7 +11,6 @@
             font-family: 'Segoe UI', Arial, sans-serif;
             background-color: #f0f7ff;
             background-image: url('/public/assets/images/planodefundoaguaVIVA.jpg');
-            background-size: cover;
             background-position: center;
             display: flex;
             justify-content: center;
