@@ -31,8 +31,8 @@ class AuthController {
     public function showLoginForm() {
         error_log("Método showLoginForm chamado");
 
-        // Check if already logged in
-        if (isset($_SESSION['user_id'])) {
+        // Check if already logged in - verificação corrigida
+        if (isset($_SESSION['userlogged']) && $_SESSION['userlogged'] === true) {
             error_log("Usuário já está logado, redirecionando para home");
             $this->redirect('/');
             exit;
@@ -57,6 +57,10 @@ class AuthController {
 
         $result = $this->authService->authenticate($username, $password);
 
+        // Detecta se é uma requisição AJAX
+        $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
         if ($result['success']) {
             error_log("Autenticação bem-sucedida para: $username");
 
@@ -67,27 +71,45 @@ class AuthController {
             $_SESSION['userlogged'] = true; // Para compatibilidade com função isLoggedIn()
             $_SESSION['lvl'] = $result['user']['access_level']; // Para compatibilidade com função hasRole()
 
-            // Redirect based on role
+            // Determina destino com base no papel
+            $redirectPath = '/';
             switch ($result['user']['access_level']) {
                 case 'admin':
-                    error_log("Redirecionando admin para /admin");
-                    $this->redirect('/admin');
+                    $redirectPath = '/admin';
                     break;
                 case 'supervisor':
-                    error_log("Redirecionando supervisor para /supervisor");
-                    $this->redirect('/supervisor');
+                    $redirectPath = '/supervisor';
                     break;
-                default:
-                    error_log("Redirecionando usuário regular para /");
-                    $this->redirect('/');
             }
-            exit;
+
+            if ($isAjax) {
+                // Resposta JSON para AJAX
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => true,
+                    'redirect' => $this->basePath . $redirectPath
+                ]);
+                exit;
+            } else {
+                // Redirecionamento tradicional
+                $this->redirect($redirectPath);
+            }
         } else {
             error_log("Falha na autenticação: " . $result['message']);
-            // Store error and redirect back to login
-            $_SESSION['login_error'] = $result['message'];
-            $this->redirect('/login');
-            exit;
+
+            if ($isAjax) {
+                // Erro em formato JSON para AJAX
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => false,
+                    'message' => $result['message']
+                ]);
+                exit;
+            } else {
+                // Store error and redirect back to login
+                $_SESSION['login_error'] = $result['message'];
+                $this->redirect('/login');
+            }
         }
     }
 

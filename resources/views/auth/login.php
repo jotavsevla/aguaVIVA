@@ -12,6 +12,7 @@
             background-color: #f0f7ff;
             background-image: url('/public/assets/images/planodefundoaguaVIVA.jpg');
             background-position: center;
+            background-attachment: fixed;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -94,7 +95,7 @@
         .btn {
             width: 100%;
             padding: 0.85rem;
-            background-color: #0066cc;
+            background-color: #000080;
             color: white;
             border: none;
             border-radius: 6px;
@@ -106,7 +107,7 @@
         }
 
         .btn:hover {
-            background-color: #0052a3;
+            background-color: #000080;
             transform: translateY(-2px);
         }
 
@@ -134,13 +135,36 @@
             background: linear-gradient(0deg, rgba(0, 102, 204, 0.1), transparent);
             z-index: -1;
         }
+        h1 {
+            text-align: center;
+            color: #000080;
+            margin: 0.5rem 0 1.5rem;
+            font-size: 2.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #8ac0f6, #0101a4);
+            transform: translateX(-50%);
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
 <div class="water-effect"></div>
 <div class="container">
     <div class="login-form">
-        <img src="/public/assets/images/logo_viva.png" alt="Logo Água Mineral VIVA" class="logo">
+        <img src="/public/assets/images/logo_viva.png" alt="Logo Água Mineral VIVA" class="logo" id="login-form">
+        <div id="error-message" class="error" style="display: none;"></div>
         <h1>Login</h1>
 
         <?php if (isset($error)): ?>
@@ -164,5 +188,41 @@
         </form>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            fetch('/login', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Resposta recebida:', data);
+                    if (!data.success) {
+                        const errorDiv = document.querySelector('.error') ||
+                            document.createElement('div');
+                        errorDiv.className = 'error';
+                        errorDiv.textContent = data.message;
+                        errorDiv.style.display = 'block';
+                        if (!document.querySelector('.error')) {
+                            document.querySelector('h1').after(errorDiv);
+                        }
+                    } else {
+                        window.location.href = data.redirect;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+        });
+    });
+</script>
 </body>
 </html>

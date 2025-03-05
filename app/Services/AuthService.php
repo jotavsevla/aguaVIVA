@@ -33,35 +33,18 @@ class AuthService {
                 error_log("Login falhou: Usuário não encontrado: $username");
                 return [
                     'success' => false,
-                    'message' => 'Invalid username or password'
+                    'message' => 'Usuário ou senha inválidos'
                 ];
             }
 
             error_log("Usuário encontrado no banco, verificando senha");
 
-            // Para depuração - NÃO use em produção
-            error_log("Senha armazenada (hash): " . $user['password']);
-
-            // Verify password
+            // Verify password - Apenas usando password_verify, sem fallback inseguro
             if (!password_verify($password, $user['password'])) {
                 error_log("Login falhou: Senha incorreta para usuário: $username");
-
-                // Para situações de emergência, adicione verificação de senha em texto claro
-                // REMOVA EM PRODUÇÃO, isto é apenas para depuração
-                if ($password === $user['password']) {
-                    error_log("ATENÇÃO: Senha em texto plano corresponde, mas hash não");
-                    // Usuário encontrado e senha corresponde em texto plano
-                    $userModel->updateLastLogin($user['id']);
-                    error_log("Login com senha em texto plano bem-sucedido: $username (ID: {$user['id']})");
-                    return [
-                        'success' => true,
-                        'user' => $user
-                    ];
-                }
-
                 return [
                     'success' => false,
-                    'message' => 'Invalid username or password'
+                    'message' => 'Usuário ou senha inválidos'
                 ];
             }
 
@@ -79,7 +62,7 @@ class AuthService {
 
             return [
                 'success' => false,
-                'message' => 'An error occurred during authentication. Please try again later.'
+                'message' => 'Ocorreu um erro durante a autenticação. Por favor, tente novamente mais tarde.'
             ];
         }
     }

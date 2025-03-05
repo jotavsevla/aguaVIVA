@@ -9,7 +9,7 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 define('ENVIRONMENT', 'development');
 
 // Requisições para phpMyAdmin são processadas diretamente
-if (strpos($uri, '/phpmyadmin') === 0) {
+if ($uri === '/phpmyadmin/index.php' || $uri === '/public/phpmyadmin/index.php' || $uri === '/aguaVIVA/public/phpmyadmin/index.php') {
     return false;
 }
 

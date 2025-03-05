@@ -66,6 +66,45 @@ $router->get('/logout-temp.php', function() {
 $router->get('/', function() {
     echo "Welcome to the home page!";
 });
+// Rota para o dashboard do admin
+$router->get('/admin', function() {
+    include BASE_PATH . '/resources/views/admin/dashboard.php';
+});
 
+// Rota para o dashboard do supervisor
+$router->get('/supervisor', function() {
+    include BASE_PATH . '/resources/views/supervisor/dashboard.php';
+});
+
+// Rotas para clientes (admin)
+$router->get('/admin/clientes', function() {
+    include BASE_PATH . '/resources/views/admin/clientes/index.php';
+});
+
+$router->get('/admin/clientes/create', function() {
+    include BASE_PATH . '/resources/views/admin/clientes/create.php';
+});
+
+$router->get('/admin/clientes/edit', function() {
+    include BASE_PATH . '/resources/views/admin/clientes/edit.php';
+});
+
+// Rotas para pedidos (admin)
+$router->get('/admin/pedidos', function() {
+    include BASE_PATH . '/resources/views/admin/pedidos/index.php';
+});
+
+$router->get('/admin/pedidos/create', function() {
+    include BASE_PATH . '/resources/views/admin/pedidos/create.php';
+});
+
+$router->get('/admin/pedidos/edit', function() {
+    include BASE_PATH . '/resources/views/admin/pedidos/edit.php';
+});
+
+// Rotas para usuários (supervisor)
+$router->get('/supervisor/users', function() {
+    include BASE_PATH . '/resources/views/supervisor/users/index.php';
+});
 // Process the request
 $router->dispatch();
