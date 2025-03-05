@@ -8,12 +8,29 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 // Defina constante para identificar ambiente
 define('ENVIRONMENT', 'development');
 
-// Requisições para phpMyAdmin são processadas diretamente
-if ($uri === '/phpmyadmin/index.php' || $uri === '/public/phpmyadmin/index.php' || $uri === '/aguaVIVA/public/phpmyadmin/index.php') {
+// Verificação estrita para phpMyAdmin
+if (strpos($uri, '/phpmyadmin') === 0 || strpos($uri, '/public/phpmyadmin') === 0) {
+    $phpMyAdminPath = __DIR__ . '/public/phpmyadmin';
+
+    // Verificar se é uma requisição para router.php do phpMyAdmin
+    if (strpos($uri, 'router.php') !== false) {
+        // Verificar se o arquivo existe
+        $phpMyAdminRouterPath = $phpMyAdminPath . '/router.php';
+        if (file_exists($phpMyAdminRouterPath)) {
+            // Incluir diretamente o router.php do phpMyAdmin
+            error_log("Requisição para router.php do phpMyAdmin - incluindo diretamente");
+            include $phpMyAdminRouterPath;
+            return true;
+        }
+    }
+
+    // Para outras requisições phpMyAdmin, deixar o servidor processar normalmente
+    error_log("Requisição phpMyAdmin detectada: $uri - passando diretamente");
     return false;
 }
 
-// Permitir acesso direto ao arquivo logout-temp.php (corrigido o nome do arquivo)
+// Resto do código permanece igual
+// Permitir acesso direto ao arquivo logout-temp.php
 if ($uri === '/logout-temp.php') {
     include __DIR__ . '/logout-temp.php';
     return true;

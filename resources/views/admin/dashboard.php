@@ -115,7 +115,7 @@ if (!isset($_SESSION['userlogged']) || $_SESSION['lvl'] !== 'admin') {
     <h1>Dashboard Administrativo - Água Mineral VIVA</h1>
     <div class="user-info">
         <span>Bem-vindo, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
-        <a href="/logout" class="logout-btn">Sair</a>
+        <a href="/logout" class="logout-btn btn-danger">Sair</a>
     </div>
 </div>
 

@@ -126,7 +126,7 @@ if (!isset($_SESSION['userlogged']) || $_SESSION['lvl'] !== 'supervisor') {
     <h1>Dashboard do Supervisor - Água Mineral VIVA</h1>
     <div class="user-info">
         <span>Bem-vindo, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
-        <a href="/logout" class="logout-btn">Sair</a>
+        <a href="/logout" class="logout-btn btn-danger">Sair</a>
     </div>
 </div>
 

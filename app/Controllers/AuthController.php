@@ -48,6 +48,21 @@ class AuthController {
     }
 
     public function processLogin() {
+        // Verifica o token CSRF
+        if (!isset($_POST['csrf_token']) || !verifyCsrfToken($_POST['csrf_token'])) {
+            if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Erro de validação. Tente novamente.'
+                ]);
+                exit;
+            } else {
+                $_SESSION['login_error'] = 'Erro de validação. Tente novamente.';
+                $this->redirect('/login');
+                exit;
+            }
+        }
         error_log("Método processLogin chamado");
 
         $username = $_POST['username'] ?? '';

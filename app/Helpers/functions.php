@@ -134,3 +134,22 @@ function asset($path) {
         return (defined('BASE_URL') ? BASE_URL : '/aguaVIVA') . '/assets/' . $path;
     }
 }
+/**
+ * Gera token CSRF
+ * @return string
+ */
+function generateCsrfToken() {
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Verifica se o token CSRF é válido
+ * @param string $token
+ * @return bool
+ */
+function verifyCsrfToken($token) {
+    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+}

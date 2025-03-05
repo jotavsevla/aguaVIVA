@@ -106,5 +106,14 @@ $router->get('/admin/pedidos/edit', function() {
 $router->get('/supervisor/users', function() {
     include BASE_PATH . '/resources/views/supervisor/users/index.php';
 });
+
+// Rotas para clientes (admin)
+// Rotas para clientes (admin)
+$router->get('/admin/clientes', 'App\Controllers\ClienteController@index');
+$router->get('/admin/clientes/create', 'App\Controllers\ClienteController@create');
+$router->post('/admin/clientes/store', 'App\Controllers\ClienteController@store');
+$router->get('/admin/clientes/edit/{id}', 'App\Controllers\ClienteController@edit');
+$router->post('/admin/clientes/update/{id}', 'App\Controllers\ClienteController@update');
+$router->post('/admin/clientes/delete/{id}', 'App\Controllers\ClienteController@delete');
 // Process the request
 $router->dispatch();

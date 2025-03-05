@@ -174,6 +174,7 @@
         <?php endif; ?>
 
         <form method="post" action="/login">
+            <input type="hidden" name="csrf_token" value="<?php echo generateCsrfToken(); ?>">
             <div class="form-group">
                 <label for="username">Usuário:</label>
                 <input type="text" id="username" name="username" required>

@@ -1,69 +1,94 @@
 <?php
-// app/Services/AuthService.php
 namespace App\Services;
 
 use App\Models\User;
 use Src\Database\Connection;
 
 class AuthService {
-    public function authenticate($username, $password) {
-        error_log("AuthService::authenticate chamado para usuário: $username");
+    private $maxLoginAttempts = 5;
+    private $loginLockoutTime = 15; // minutos
 
+    public function authenticate($username, $password) {
         if (empty($username) || empty($password)) {
-            error_log("Login falhou: Usuário ou senha vazios");
             return [
                 'success' => false,
-                'message' => 'Username and password are required'
+                'message' => 'Usuário e senha são obrigatórios'
+            ];
+        }
+
+        // Implementar verificação de tentativas de login
+        if ($this->isIpBlocked()) {
+            return [
+                'success' => false,
+                'message' => 'Muitas tentativas de login. Tente novamente mais tarde.'
             ];
         }
 
         try {
-            // Get database connection usando o Singleton
             $conn = Connection::getInstance();
-            error_log("Conexão com banco obtida com sucesso");
-
-            // Create user model
             $userModel = new User($conn);
-            error_log("Modelo User instanciado");
-
-            // Find user by username
             $user = $userModel->findByUsername($username);
 
             if (!$user) {
-                error_log("Login falhou: Usuário não encontrado: $username");
+                $this->recordFailedAttempt();
                 return [
                     'success' => false,
                     'message' => 'Usuário ou senha inválidos'
                 ];
             }
 
-            error_log("Usuário encontrado no banco, verificando senha");
-
-            // Verify password - Apenas usando password_verify, sem fallback inseguro
+            // Usar APENAS password_verify para verificação
             if (!password_verify($password, $user['password'])) {
-                error_log("Login falhou: Senha incorreta para usuário: $username");
+                $this->recordFailedAttempt();
                 return [
                     'success' => false,
                     'message' => 'Usuário ou senha inválidos'
                 ];
             }
 
-            // Update last login timestamp
+            // Limpa tentativas em caso de sucesso
+            $this->clearLoginAttempts();
             $userModel->updateLastLogin($user['id']);
-
-            error_log("Login bem-sucedido: $username (ID: {$user['id']})");
 
             return [
                 'success' => true,
                 'user' => $user
             ];
         } catch (\Exception $e) {
-            error_log("Erro de autenticação: " . $e->getMessage() . "\n" . $e->getTraceAsString());
-
+            error_log("Erro de autenticação: " . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Ocorreu um erro durante a autenticação. Por favor, tente novamente mais tarde.'
+                'message' => 'Ocorreu um erro durante a autenticação. Tente novamente mais tarde.'
             ];
         }
+    }
+
+    private function recordFailedAttempt() {
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $_SESSION['login_attempts'][$ip] = ($_SESSION['login_attempts'][$ip] ?? 0) + 1;
+        $_SESSION['login_time'][$ip] = time();
+    }
+
+    private function isIpBlocked() {
+        $ip = $_SERVER['REMOTE_ADDR'];
+        if (!isset($_SESSION['login_attempts'][$ip])) {
+            return false;
+        }
+
+        if ($_SESSION['login_attempts'][$ip] >= $this->maxLoginAttempts) {
+            $blockTime = $_SESSION['login_time'][$ip] + ($this->loginLockoutTime * 60);
+            if (time() < $blockTime) {
+                return true;
+            }
+            // Reset após período de bloqueio
+            $this->clearLoginAttempts();
+        }
+        return false;
+    }
+
+    private function clearLoginAttempts() {
+        $ip = $_SERVER['REMOTE_ADDR'];
+        unset($_SESSION['login_attempts'][$ip]);
+        unset($_SESSION['login_time'][$ip]);
     }
 }
