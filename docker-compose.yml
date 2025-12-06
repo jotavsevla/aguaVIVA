@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: aguaviva_nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - aguaviva_network
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: aguaviva_php
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - mysql
+    networks:
+      - aguaviva_network
+
+  mysql:
+    image: mysql:8.0
+    container_name: aguaviva_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: aguaVIVA
+      MYSQL_USER: aguaviva
+      MYSQL_PASSWORD: aguaviva123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - aguaviva_network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: aguaviva_phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+    networks:
+      - aguaviva_network
+
+networks:
+  aguaviva_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
