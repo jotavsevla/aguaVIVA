@@ -10,8 +10,12 @@ function detectEnvironment() {
         return ENVIRONMENT;
     }
 
-    // Detecta servidor embutido PHP
-    if (php_sapi_name() === 'cli-server') {
+    // Detecta servidor embutido PHP ou Docker (desenvolvimento)
+    $dockerComposeExists = file_exists(dirname(__DIR__) . '/docker-compose.yml');
+
+    if (php_sapi_name() === 'cli-server' ||
+        getenv('DOCKER_ENV') === 'development' ||
+        $dockerComposeExists) {
         define('ENVIRONMENT', 'development');
         define('BASE_URL', '');
         return 'development';
@@ -54,66 +58,59 @@ require_once BASE_PATH . '/config/config.php';
 require_once BASE_PATH . '/app/Helpers/functions.php';
 
 // Create router
-$router = new Src\Core\Router();
+$router = new src\Core\Router();
 
 // Define routes
-$router->get('/login', 'App\Controllers\AuthController@showLoginForm');
-$router->post('/login', 'App\Controllers\AuthController@processLogin');
-$router->get('/logout', 'App\Controllers\AuthController@logout');
-$router->get('/logout-temp.php', function() {
-    include BASE_PATH . '/logout-temp.php';
-});
+$router->get('/login', 'app\Controllers\AuthController@showLoginForm');
+$router->post('/login', 'app\Controllers\AuthController@processLogin');
+$router->get('/logout', 'app\Controllers\AuthController@logout');
+
 $router->get('/', function() {
-    echo "Welcome to the home page!";
+    header('Location: /login');
+    exit;
 });
-// Rota para o dashboard do admin
+
+// Dashboard admin
 $router->get('/admin', function() {
     include BASE_PATH . '/resources/views/admin/dashboard.php';
 });
 
-// Rota para o dashboard do supervisor
+// Dashboard supervisor
 $router->get('/supervisor', function() {
     include BASE_PATH . '/resources/views/supervisor/dashboard.php';
 });
 
 // Rotas para clientes (admin)
-$router->get('/admin/clientes', function() {
-    include BASE_PATH . '/resources/views/admin/clientes/index.php';
-});
+$router->get('/admin/clientes', 'app\Controllers\ClienteController@index');
+$router->get('/admin/clientes/create', 'app\Controllers\ClienteController@create');
+$router->post('/admin/clientes/store', 'app\Controllers\ClienteController@store');
+$router->get('/admin/clientes/edit/{id}', 'app\Controllers\ClienteController@edit');
+$router->post('/admin/clientes/update/{id}', 'app\Controllers\ClienteController@update');
+$router->post('/admin/clientes/delete/{id}', 'app\Controllers\ClienteController@delete');
 
-$router->get('/admin/clientes/create', function() {
-    include BASE_PATH . '/resources/views/admin/clientes/create.php';
-});
+// Rotas para entregadores (admin)
+$router->get('/admin/entregadores', 'app\Controllers\EntregadorController@index');
+$router->get('/admin/entregadores/create', 'app\Controllers\EntregadorController@create');
+$router->post('/admin/entregadores/store', 'app\Controllers\EntregadorController@store');
+$router->get('/admin/entregadores/edit/{id}', 'app\Controllers\EntregadorController@edit');
+$router->post('/admin/entregadores/update/{id}', 'app\Controllers\EntregadorController@update');
+$router->post('/admin/entregadores/delete/{id}', 'app\Controllers\EntregadorController@delete');
 
-$router->get('/admin/clientes/edit', function() {
-    include BASE_PATH . '/resources/views/admin/clientes/edit.php';
-});
+// Rotas para entregas (admin)
+$router->get('/admin/entregas', 'app\Controllers\EntregaController@index');
+$router->get('/admin/entregas/create', 'app\Controllers\EntregaController@create');
+$router->post('/admin/entregas/store', 'app\Controllers\EntregaController@store');
+$router->post('/admin/entregas/{id}/atribuir', 'app\Controllers\EntregaController@atribuir');
+$router->post('/admin/entregas/{id}/atribuir-auto', 'app\Controllers\EntregaController@atribuirAutomatico');
+$router->post('/admin/entregas/{id}/iniciar', 'app\Controllers\EntregaController@iniciar');
+$router->post('/admin/entregas/{id}/concluir', 'app\Controllers\EntregaController@concluir');
+$router->post('/admin/entregas/{id}/cancelar', 'app\Controllers\EntregaController@cancelar');
+$router->post('/admin/entregas/{id}/delete', 'app\Controllers\EntregaController@delete');
 
-// Rotas para pedidos (admin)
-$router->get('/admin/pedidos', function() {
-    include BASE_PATH . '/resources/views/admin/pedidos/index.php';
-});
+// API endpoints
+$router->post('/api/entregadores/{id}/status', 'app\Controllers\EntregadorController@updateStatus');
+$router->get('/api/entregadores/disponiveis', 'app\Controllers\EntregadorController@apiDisponiveis');
+$router->get('/api/entregas/pendentes', 'app\Controllers\EntregaController@apiPendentes');
 
-$router->get('/admin/pedidos/create', function() {
-    include BASE_PATH . '/resources/views/admin/pedidos/create.php';
-});
-
-$router->get('/admin/pedidos/edit', function() {
-    include BASE_PATH . '/resources/views/admin/pedidos/edit.php';
-});
-
-// Rotas para usuários (supervisor)
-$router->get('/supervisor/users', function() {
-    include BASE_PATH . '/resources/views/supervisor/users/index.php';
-});
-
-// Rotas para clientes (admin)
-// Rotas para clientes (admin)
-$router->get('/admin/clientes', 'App\Controllers\ClienteController@index');
-$router->get('/admin/clientes/create', 'App\Controllers\ClienteController@create');
-$router->post('/admin/clientes/store', 'App\Controllers\ClienteController@store');
-$router->get('/admin/clientes/edit/{id}', 'App\Controllers\ClienteController@edit');
-$router->post('/admin/clientes/update/{id}', 'App\Controllers\ClienteController@update');
-$router->post('/admin/clientes/delete/{id}', 'App\Controllers\ClienteController@delete');
 // Process the request
 $router->dispatch();

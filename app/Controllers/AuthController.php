@@ -1,8 +1,8 @@
 <?php
 // app/Controllers/AuthController.php
-namespace App\Controllers;
+namespace app\Controllers;
 
-use App\Services\AuthService;
+use app\Services\AuthService;
 
 class AuthController {
     private $authService;
@@ -11,10 +11,18 @@ class AuthController {
     public function __construct() {
         $this->authService = new AuthService();
 
-        // Detecta caminho base
-        $this->basePath = '';
-        if (php_sapi_name() != 'cli-server') {
-            $this->basePath = '/aguaVIVA';
+        // Detecta caminho base - usa BASE_URL se definido, senão detecta
+        if (defined('BASE_URL')) {
+            $this->basePath = BASE_URL;
+        } else {
+            // Detecta servidor embutido PHP ou Docker (desenvolvimento)
+            $dockerComposeExists = file_exists(dirname(__DIR__, 2) . '/docker-compose.yml');
+
+            if (php_sapi_name() === 'cli-server' || $dockerComposeExists) {
+                $this->basePath = '';
+            } else {
+                $this->basePath = '/aguaVIVA';
+            }
         }
 
         error_log("AuthController construído com caminho base: {$this->basePath}");
@@ -31,10 +39,24 @@ class AuthController {
     public function showLoginForm() {
         error_log("Método showLoginForm chamado");
 
-        // Check if already logged in - verificação corrigida
+        // Check if already logged in - redireciona para dashboard correto
         if (isset($_SESSION['userlogged']) && $_SESSION['userlogged'] === true) {
-            error_log("Usuário já está logado, redirecionando para home");
-            $this->redirect('/');
+            error_log("Usuário já está logado, redirecionando para dashboard");
+
+            // Redireciona baseado no nível de acesso
+            $redirectPath = '/admin'; // padrão
+            if (isset($_SESSION['lvl'])) {
+                switch ($_SESSION['lvl']) {
+                    case 'admin':
+                        $redirectPath = '/admin';
+                        break;
+                    case 'supervisor':
+                        $redirectPath = '/supervisor';
+                        break;
+                }
+            }
+
+            $this->redirect($redirectPath);
             exit;
         }
 
