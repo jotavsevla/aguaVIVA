@@ -10,7 +10,7 @@
             margin: 0;
             font-family: 'Segoe UI', Arial, sans-serif;
             background-color: #f0f7ff;
-            background-image: url('/public/assets/images/planodefundoaguaVIVA.jpg');
+            background-image: url('/assets/images/planodefundoaguaVIVA.jpg');
             background-position: center;
             background-attachment: fixed;
             display: flex;
@@ -163,7 +163,7 @@
 <div class="water-effect"></div>
 <div class="container">
     <div class="login-form">
-        <img src="/public/assets/images/logo_viva.png" alt="Logo Água Mineral VIVA" class="logo" id="login-form">
+        <img src="/assets/images/logo_viva.png" alt="Logo Água Mineral VIVA" class="logo" id="login-form">
         <div id="error-message" class="error" style="display: none;"></div>
         <h1>Login</h1>
 
