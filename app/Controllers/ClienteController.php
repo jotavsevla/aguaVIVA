@@ -1,9 +1,9 @@
 <?php
 // app/Controllers/ClienteController.php
-namespace App\Controllers;
+namespace app\Controllers;
 
-use App\Models\Cliente;
-use Src\Database\Connection;
+use app\Models\Cliente;
+use src\Database\Connection;
 
 class ClienteController {
     private $clienteModel;

@@ -1,8 +1,8 @@
 <?php
-namespace App\Services;
+namespace app\Services;
 
-use App\Models\User;
-use Src\Database\Connection;
+use app\Models\User;
+use src\Database\Connection;
 
 class AuthService {
     private $maxLoginAttempts = 5;

@@ -1,6 +1,6 @@
 <?php
 // app/Models/Cliente.php
-namespace App\Models;
+namespace app\Models;
 
 use PDO;
 
@@ -52,7 +52,7 @@ class Cliente {
 
         $result = $stmt->execute([
             $data['nome'],
-            $data['cpf'],
+            $data['cpf'] ?? null,
             $data['endereco'],
             $data['telefone'],
             $data['telefone2'] ?? null

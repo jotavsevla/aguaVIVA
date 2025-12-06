@@ -1,9 +1,9 @@
 <?php
 // app/Controllers/UserController.php
-namespace App\Controllers;
+namespace app\Controllers;
 
-use App\Models\UserAdmin;
-use Src\Database\Connection;
+use app\Models\UserAdmin;
+use src\Database\Connection;
 
 class UserController {
     private $userModel;
