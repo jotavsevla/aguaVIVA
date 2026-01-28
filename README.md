@@ -1,40 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Água VIVA
 
-## Getting Started
+Sistema de gerenciamento para distribuidora de água mineral.
 
-First, run the development server:
+## Status
+
+🚧 Em desenvolvimento
+
+## Tecnologias
+
+- Next.js 16
+- React 19
+- PostgreSQL (em breve)
+- Jest
+
+## Requisitos
+
+- Node.js v22.12.0 (veja `.nvmrc`)
+- npm
+
+## Instalação
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clona o repositório
+git clone https://github.com/seu-usuario/agua-viva.git
+cd agua-viva
+
+# Usa a versão correta do Node
+nvm install
+nvm use
+
+# Instala dependências
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+```bash
+npm run dev         # servidor de desenvolvimento
+npm run build       # build de produção
+npm run start       # inicia produção
+npm test            # roda testes
+npm run test:watch  # testes em modo watch
+npm run lint:check  # verifica formatação
+npm run lint:fix    # corrige formatação
+```
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+## Estrutura do Projeto
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+```
+agua-viva/
+├── infra/              # Infraestrutura (banco, migrations)
+├── models/             # Regras de negócio
+├── pages/              # Rotas e páginas (Next.js)
+│   └── api/            # API REST
+├── tests/
+│   ├── integration/    # Testes de integração
+│   └── unit/           # Testes unitários
+└── styles/             # CSS
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Roadmap
 
-## Learn More
+- [x] Setup inicial (Next.js, Jest, Prettier)
+- [ ] Configuração do banco de dados
+- [ ] Autenticação (JWT)
+- [ ] CRUD de usuários
+- [ ] CRUD de clientes
+- [ ] CRUD de pedidos
+- [ ] Dashboard
 
-To learn more about Next.js, take a look at the following resources:
+## Licença
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+MIT
