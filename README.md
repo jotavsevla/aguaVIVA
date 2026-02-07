@@ -27,7 +27,7 @@ Sistema de roteamento de veículos (VRP) para distribuidora de água mineral.
 
 ```bash
 # Clona o repositório
-git clone https://github.com/seu-usuario/agua-viva.git
+git clone git@github.com:jotavsevla/aguaVIVA.git
 cd agua-viva
 
 # Usa a versão correta do Node
