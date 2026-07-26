@@ -6,6 +6,8 @@ Sistema de roteamento de veículos (VRP) para distribuidora de água mineral.
 
 🚧 Em desenvolvimento - FASE 1 (Fundação) concluída
 
+Este repositório é o **protótipo público anterior** do case Água Viva apresentado no [portfólio](https://portfolio.jvapa.com.br/). O produto atual em Java/Python é privado e não deve ser confundido com este código. Aqui estão verificáveis a fundação Next.js/PostgreSQL, migrations, containers e o endpoint de status.
+
 ## Tecnologias
 
 - Next.js 16 (Pages Router)
@@ -27,8 +29,8 @@ Sistema de roteamento de veículos (VRP) para distribuidora de água mineral.
 
 ```bash
 # Clona o repositório
-git clone git@github.com:jotavsevla/aguaVIVA.git
-cd agua-viva
+git clone https://github.com/jotavsevla/aguaVIVA.git
+cd aguaVIVA
 
 # Usa a versão correta do Node
 nvm install
@@ -98,6 +100,7 @@ agua-viva/
 ## Roadmap
 
 ### FASE 1 — FUNDAÇÃO ✅
+
 - [x] Setup inicial (Next.js, Jest, Prettier)
 - [x] Configuração do banco de dados (PostgreSQL + Docker)
 - [x] infra/database.js (pool pg)
@@ -106,6 +109,7 @@ agua-viva/
 - [x] GET /api/v1/status (health check)
 
 ### FASE 2 — AUTENTICAÇÃO (próximo)
+
 - [ ] models/password.js + testes
 - [ ] models/user.js + testes
 - [ ] models/session.js + testes
@@ -114,6 +118,7 @@ agua-viva/
 - [ ] DELETE /api/v1/sessions (logout)
 
 ### FASE 3 — DOMÍNIO
+
 - [ ] models/cliente.js + testes
 - [ ] models/pedido.js + testes
 - [ ] models/vale.js + testes
@@ -121,8 +126,74 @@ agua-viva/
 - [ ] Endpoints CRUD
 
 ### FASE 4 — SOLVER
+
 - [ ] FastAPI + OR-Tools
 - [ ] Integração com Next.js
+
+## Arquitetura e fluxo de recursos
+
+```text
+requisição HTTP
+  → API Route (Pages Router)
+    → infra/database.js
+      → pool PostgreSQL
+        → query parametrizada
+```
+
+O pool é criado sob demanda e reutilizado no processo. Consultas comuns devolvem a conexão automaticamente; quando `getClient()` for usado para transações, o chamador deverá sempre executar `client.release()` em um bloco `finally`, caso contrário o pool pode se esgotar.
+
+## Auditoria técnica
+
+### Pontos positivos
+
+- o endpoint consulta o banco com parâmetro (`$1`) onde há dado variável;
+- desenvolvimento e testes usam bancos separados;
+- migrations são a fonte versionada do schema;
+- o pool pode ser encerrado explicitamente por `database.end()`;
+- há teste de integração do contrato básico de `/api/v1/status`.
+
+### Limitações atuais
+
+- o projeto ainda não implementa autenticação, domínio de pedidos/rotas nem solver; são itens de roadmap;
+- o endpoint não restringe método HTTP e ainda não padroniza resposta para indisponibilidade do banco;
+- em teste, a contagem de conexões usa `POSTGRES_DB`, embora o pool use `POSTGRES_DB_TEST`; isso pode medir o banco errado;
+- `clearDatabase()` remove todo o schema `public`; só deve rodar em banco de teste isolado;
+- o teste de integração pressupõe servidor em `localhost:3000`, mas o comando `npm test` não o inicia;
+- `rejectUnauthorized: false` em produção facilita conexão com alguns provedores, porém desativa a verificação completa do certificado. Prefira uma CA confiável quando disponível;
+- `npm run lint:check` verifica formatação, não regras semânticas de lint.
+- uma instalação limpa emitiu avisos de dependências transitivas obsoletas, incluindo `inflight` (marcada pelo mantenedor como propensa a vazamento) e versões antigas de `glob`. Use `npm ls inflight glob` para localizar a cadeia e atualize dependências com testes, sem presumir que alterar somente o lockfile resolve compatibilidade.
+
+### Memória e concorrência
+
+Node.js e `pg` gerenciam objetos por garbage collection, portanto não há `malloc/free` manual. Os recursos que exigem atenção são conexões e processos:
+
+- conexões obtidas por `pool.connect()` precisam de `release()`;
+- o pool deve permanecer singleton para evitar multiplicar até 20 conexões por instância;
+- scripts de teste que executam processos filhos devem propagar falhas e encerrar recursos;
+- limites de pool e timeouts precisam acompanhar o limite real do PostgreSQL e o número de instâncias da aplicação.
+
+## Verificação recomendada
+
+```bash
+docker compose up -d
+npm install
+npm run migrate:up
+npm run dev
+# em outro terminal
+npm test
+npm run lint:check
+npm run build
+```
+
+Na auditoria, o teste unitário e o build de produção passaram. A checagem global do Prettier encontrou formatação pendente em documentação e em um teste de integração preexistentes.
+
+## Próximos passos técnicos
+
+1. corrigir a variável de banco usada pelo status em ambiente de teste;
+2. criar um script único que suba servidor, banco e integração;
+3. validar métodos HTTP e padronizar erros sem expor detalhes internos;
+4. cobrir rollback de migration, banco indisponível e exaustão do pool;
+5. implementar autenticação com testes antes de divulgar as fases seguintes como concluídas.
 
 ## Licença
 
